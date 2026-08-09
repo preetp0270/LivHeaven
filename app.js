@@ -3,6 +3,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 const express = require('express');
 const app = express();
+const dns = require("dns");
 const mongoose = require('mongoose');
 const path = require('path');
 const methodOverride = require('method-override');
@@ -28,6 +29,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
+
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 // MongoDB Connection
 async function main() {
