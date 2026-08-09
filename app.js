@@ -1,4 +1,4 @@
-```js
+```javascript
 // ============================================================
 // Environment
 // ============================================================
@@ -38,32 +38,36 @@ const userRoutes = require("./routes/user.js");
 
 
 // ============================================================
-// Basic App Configuration
+// App Configuration
 // ============================================================
 
 app.engine("ejs", ejsMate);
 
 app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
+
+app.set(
+    "views",
+    path.join(__dirname, "views")
+);
 
 
 // ============================================================
-// Render / Proxy Configuration
+// Render Configuration
 // ============================================================
 
-// Required when running behind Render's proxy.
-// This allows Express to correctly understand HTTPS requests.
 if (process.env.NODE_ENV === "production") {
     app.set("trust proxy", 1);
 }
 
 
 // ============================================================
-// Middleware
+// General Middleware
 // ============================================================
 
 app.use(
-    express.static(path.join(__dirname, "public"))
+    express.static(
+        path.join(__dirname, "public")
+    )
 );
 
 app.use(express.json());
@@ -80,14 +84,9 @@ app.use(
 
 
 // ============================================================
-// DNS
+// DNS Configuration
 // ============================================================
 
-// Keep Google DNS configuration because it helped with
-// MongoDB DNS/SRV resolution during development.
-//
-// Render normally handles DNS correctly, so this is not
-// required in most deployments.
 dns.setServers([
     "8.8.8.8",
     "8.8.4.4"
@@ -99,7 +98,9 @@ dns.setServers([
 // ============================================================
 
 passport.use(
-    new LocalStrategy(User.authenticate())
+    new LocalStrategy(
+        User.authenticate()
+    )
 );
 
 passport.serializeUser(
@@ -112,7 +113,7 @@ passport.deserializeUser(
 
 
 // ============================================================
-// Start Server
+// Server Startup
 // ============================================================
 
 async function startServer() {
@@ -120,7 +121,7 @@ async function startServer() {
     try {
 
         // ----------------------------------------------------
-        // Validate Environment Variables
+        // Check Environment Variables
         // ----------------------------------------------------
 
         if (!process.env.ATLAS_DB_USER) {
@@ -144,7 +145,9 @@ async function startServer() {
             process.env.ATLAS_DB_USER
         );
 
-        console.log("✅ Connected to MongoDB");
+        console.log(
+            "✅ Connected to MongoDB"
+        );
 
 
         // ----------------------------------------------------
@@ -152,22 +155,22 @@ async function startServer() {
         // ----------------------------------------------------
 
         const store = MongoStore.create({
-
             mongoUrl: process.env.ATLAS_DB_USER,
-
             touchAfter: 24 * 3600
-
         });
 
 
-        store.on("error", (error) => {
+        store.on(
+            "error",
+            function (error) {
 
-            console.error(
-                "❌ SESSION STORE ERROR:",
-                error
-            );
+                console.error(
+                    "❌ SESSION STORE ERROR:",
+                    error
+                );
 
-        });
+            }
+        );
 
 
         // ----------------------------------------------------
@@ -200,7 +203,6 @@ async function startServer() {
 
                 httpOnly: true,
 
-                // HTTPS cookie in production
                 secure:
                     process.env.NODE_ENV === "production",
 
@@ -212,7 +214,7 @@ async function startServer() {
 
 
         // ----------------------------------------------------
-        // Session Middleware
+        // Session
         // ----------------------------------------------------
 
         app.use(
@@ -221,14 +223,16 @@ async function startServer() {
 
 
         // ----------------------------------------------------
-        // Flash Middleware
+        // Flash
         // ----------------------------------------------------
 
-        app.use(flash());
+        app.use(
+            flash()
+        );
 
 
         // ----------------------------------------------------
-        // Passport Middleware
+        // Passport
         // ----------------------------------------------------
 
         app.use(
@@ -241,23 +245,25 @@ async function startServer() {
 
 
         // ----------------------------------------------------
-        // Flash / User Variables
+        // Global Variables
         // ----------------------------------------------------
 
-        app.use((req, res, next) => {
+        app.use(
+            function (req, res, next) {
 
-            res.locals.success =
-                req.flash("success");
+                res.locals.success =
+                    req.flash("success");
 
-            res.locals.error =
-                req.flash("error");
+                res.locals.error =
+                    req.flash("error");
 
-            res.locals.currentUser =
-                req.user;
+                res.locals.currentUser =
+                    req.user;
 
-            next();
+                next();
 
-        });
+            }
+        );
 
 
         // ====================================================
@@ -265,13 +271,16 @@ async function startServer() {
         // ====================================================
 
         // Home
-        app.get("/", (req, res) => {
+        app.get(
+            "/",
+            function (req, res) {
 
-            res.send(
-                "Hello! This Is Root!"
-            );
+                res.send(
+                    "Hello! This Is Root!"
+                );
 
-        });
+            }
+        );
 
 
         // Listings
@@ -298,22 +307,19 @@ async function startServer() {
         // ====================================================
         // 404 Handler
         // ====================================================
-        //
-        // Using app.use() here instead of app.all("*")
-        // avoids wildcard-route compatibility issues with
-        // newer Express versions.
-        //
 
-        app.use((req, res, next) => {
+        app.use(
+            function (req, res, next) {
 
-            next(
-                new ExpressErr(
-                    404,
-                    "Page Not Found! :)"
-                )
-            );
+                next(
+                    new ExpressErr(
+                        404,
+                        "Page Not Found! :)"
+                    )
+                );
 
-        });
+            }
+        );
 
 
         // ====================================================
@@ -321,7 +327,7 @@ async function startServer() {
         // ====================================================
 
         app.use(
-            (err, req, res, next) => {
+            function (err, req, res, next) {
 
                 console.error(
                     "❌ Error:",
@@ -329,8 +335,8 @@ async function startServer() {
                 );
 
 
-                // If response was already sent,
-                // do not try to send another response.
+                // Prevent "Cannot set headers after
+                // they are sent to the client"
                 if (res.headersSent) {
                     return next(err);
                 }
@@ -344,43 +350,44 @@ async function startServer() {
                     "Something went wrong!";
 
 
-                // Try EJS error page
-                return res
-                    .status(status)
-                    .render(
-                        "error.ejs",
-                        {
-                            status,
-                            message
-                        },
-                        (renderError, html) => {
+                // Try to render error page
+                res.status(status);
 
-                            if (renderError) {
 
-                                console.error(
-                                    "❌ Error rendering error.ejs:",
-                                    renderError
-                                );
+                res.render(
+                    "error.ejs",
+                    {
+                        status: status,
+                        message: message
+                    },
+                    function (renderError, html) {
 
-                                return res
-                                    .status(status)
-                                    .send(
-                                        `${status} - ${message}`
-                                    );
+                        if (renderError) {
 
-                            }
+                            console.error(
+                                "❌ Could not render error.ejs:",
+                                renderError
+                            );
 
-                            return res.send(html);
+                            return res.send(
+                                status +
+                                " - " +
+                                message
+                            );
 
                         }
-                    );
+
+                        return res.send(html);
+
+                    }
+                );
 
             }
         );
 
 
         // ====================================================
-        // Server / Render Port
+        // Start HTTP Server
         // ====================================================
 
         const port =
@@ -390,10 +397,11 @@ async function startServer() {
         app.listen(
             port,
             "0.0.0.0",
-            () => {
+            function () {
 
                 console.log(
-                    `🚀 Server running on port ${port}`
+                    "🚀 Server running on port " +
+                    port
                 );
 
             }
