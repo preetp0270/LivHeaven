@@ -140,8 +140,14 @@ async function startServer() {
         // MongoDB Connection
         // ----------------------------------------------------
 
+        const databaseName =
+            process.env.ATLAS_DB_NAME || "LivHeaven";
+
         await mongoose.connect(
-            process.env.ATLAS_DB_USER
+            process.env.ATLAS_DB_USER,
+            {
+                dbName: databaseName
+            }
         );
 
         console.log(
@@ -155,6 +161,7 @@ async function startServer() {
 
         const store = MongoStore.create({
             mongoUrl: process.env.ATLAS_DB_USER,
+            dbName: databaseName,
             touchAfter: 24 * 3600
         });
 
