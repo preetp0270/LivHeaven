@@ -1,5 +1,5 @@
 if (process.env.NODE_ENV !== "production") {
-  require('dotenv').config({ path: '../.env' }); // 👈 load from parent folder
+  require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
 }
 
 const mongoose = require('mongoose');
@@ -8,8 +8,7 @@ const Listing = require('../models/listing.js');
 const mongoUrl = process.env.ATLAS_DB_USER;
 
 async function main() {
-    console.log('Connecting to MongoDB... ' , mongoUrl);
-   await mongoose.connect(mongoUrl);
+    await mongoose.connect(mongoUrl);
 }
 
 main()
