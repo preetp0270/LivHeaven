@@ -118,6 +118,9 @@ passport.deserializeUser(
 async function startServer() {
 
     try {
+        const atlasDbName = (
+            process.env.ATLAS_DB_NAME || "LivHeaven"
+        ).trim();
 
         // ----------------------------------------------------
         // Check Environment Variables
@@ -141,7 +144,10 @@ async function startServer() {
         // ----------------------------------------------------
 
         await mongoose.connect(
-            process.env.ATLAS_DB_USER
+            process.env.ATLAS_DB_USER,
+            {
+                dbName: atlasDbName
+            }
         );
 
         console.log(
@@ -155,6 +161,9 @@ async function startServer() {
 
         const store = MongoStore.create({
             mongoUrl: process.env.ATLAS_DB_USER,
+            mongoOptions: {
+                dbName: atlasDbName
+            },
             touchAfter: 24 * 3600
         });
 

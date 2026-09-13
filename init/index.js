@@ -6,10 +6,11 @@ const mongoose = require('mongoose');
 const initdata = require('./data.js');
 const Listing = require('../models/listing.js');
 const mongoUrl = process.env.ATLAS_DB_USER;
+const dbName = (process.env.ATLAS_DB_NAME || 'LivHeaven').trim();
 
 async function main() {
     console.log('Connecting to MongoDB... ' , mongoUrl);
-   await mongoose.connect(mongoUrl);
+   await mongoose.connect(mongoUrl, { dbName });
 }
 
 main()
