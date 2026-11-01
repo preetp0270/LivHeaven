@@ -1,59 +1,65 @@
-<nav class="navbar navbar-expand-lg fixed-top shadow-sm glass-navbar" data-bs-theme="light">
-  <div class="container-fluid">
+<nav class="navbar navbar-expand-lg fixed-top glass-navbar" data-bs-theme="light">
+  <div class="container-fluid px-3 px-lg-4">
 
-    <!-- Left: Logo -->
-    <a class="navbar-brand text-primary d-flex align-items-center fw-bold me-2" href="/listing">
-      <span class="material-symbols-outlined me-1">family_home</span>
-      LivHaven
+    <a class="navbar-brand me-2" href="/listing">
+      <span class="brand-mark material-symbols-outlined">home</span>
+      <span>
+        LivHeaven
+        <span class="brand-sub d-none d-sm-block">Private estates</span>
+      </span>
     </a>
 
-    <!-- User buttons always visible on right -->
-    <div class="d-flex align-items-center order-lg-3">
+    <div class="d-flex align-items-center order-lg-3 gap-1">
       <% if (!currentUser) { %>
-        <a href="/signup" class="btn btn-outline-primary me-2 d-none d-md-inline-block">Sign Up</a>
-        <a href="/login" class="btn btn-outline-primary d-none d-md-inline-block">Login</a>
+        <a href="/signup" class="btn btn-outline-primary btn-sm d-none d-md-inline-block">Sign Up</a>
+        <a href="/login" class="btn btn-primary btn-sm d-none d-md-inline-block">Log In</a>
       <% } else { %>
-        <form action="/listing/new" method="GET" class="add-listing-form d-inline me-2">
-          <button type="submit" class="btn btn-add-listing rounded-pill">
-            <i class="fa-solid fa-plus me-2"></i> LivHaven Your Home
+        <form action="/listing/new" method="GET" class="add-listing-form d-inline me-1">
+          <button type="submit" class="btn btn-add-listing">
+            <i class="fa-solid fa-plus"></i>
+            <span class="d-none d-md-inline">LivHeaven your home</span>
           </button>
         </form>
         <div class="dropdown d-none d-md-block">
           <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center"
             id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fa-solid fa-user me-2"></i>
+            <i class="fa-solid fa-user me-1"></i>
             <span class="d-none d-lg-inline"><%= currentUser.username %></span>
           </button>
           <div class="dropdown-menu dropdown-menu-end p-0 shadow-sm" aria-labelledby="userDropdown">
             <%- include('../includes/userCard.ejs') %>
           </div>
         </div>
-        <a href="/logout" class="btn btn-outline-danger d-md-none ms-2">Logout</a>
+        <a href="/logout" class="btn btn-sm btn-outline-secondary d-md-none ms-1">Logout</a>
       <% } %>
     </div>
 
-    <!-- Toggler: collapses Explore & Search -->
     <button class="navbar-toggler order-lg-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
       aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <!-- Collapsible section -->
     <div class="collapse navbar-collapse justify-content-center order-lg-1" id="navbarCollapse">
       <ul class="navbar-nav mx-auto align-items-lg-center">
         <li class="nav-item me-lg-3">
-          <a href="/listing" class="nav-link text-secondary">Explore</a>
+          <a href="/listing" class="nav-link">Explore</a>
         </li>
         <li class="nav-item w-100">
           <div class="country-search-container mt-2 mt-lg-0">
-            <input type="text" id="country-input" class="form-control rounded-pill px-3 py-2"
-              placeholder="Enter your country..." />
-            <button type="button" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold shadow-sm" id="nav-btn">
-              LivHaven <i class="fa-solid fa-magnifying-glass-location"></i>
+            <input type="text" id="country-input" class="form-control border-0 shadow-none px-0"
+              placeholder="Where do you want to go?" />
+            <button type="button" class="btn" id="nav-btn">
+              Search <i class="fa-solid fa-magnifying-glass ms-1"></i>
             </button>
           </div>
         </li>
       </ul>
+      <% if (!currentUser) { %>
+        <div class="d-flex d-md-none gap-2 mt-3 justify-content-center">
+          <a href="/signup" class="btn btn-outline-primary btn-sm">Sign Up</a>
+          <a href="/login" class="btn btn-primary btn-sm">Log In</a>
+        </div>
+      <% } %>
     </div>
 
   </div>

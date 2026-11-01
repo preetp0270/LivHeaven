@@ -1,4 +1,4 @@
-// LivHaven Frontend Behaviors - Responsive Ready
+// LivHeaven Frontend Behaviors
 
 document.addEventListener('DOMContentLoaded', () => {
   initFormValidation();
@@ -7,11 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initFilters();
   initPriceToggle();
   initCountrySearch();
+  initImageSourceToggle();
 });
 
-// ===============================
-// Form Validation
-// ===============================
 function initFormValidation() {
   const forms = document.querySelectorAll('.needs-validation');
   forms.forEach(form => {
@@ -25,9 +23,6 @@ function initFormValidation() {
   });
 }
 
-// ===============================
-// Card click navigation
-// ===============================
 function initCardNavigation() {
   document.querySelectorAll('.listing-card').forEach(card => {
     card.addEventListener('click', () => {
@@ -37,24 +32,17 @@ function initCardNavigation() {
   });
 }
 
-// ===============================
-// Navbar Button Message Animation
-// ===============================
 function initNavBtnAnimation() {
   const navBtn = document.getElementById('nav-btn');
   if (!navBtn) return;
   const hasFlash = document.querySelectorAll('.alert').length > 0;
   if (!hasFlash) {
     setTimeout(() => {
-      navBtn.classList.add('fw-semibold');
-      navBtn.innerHTML = `Welcome to LivHaven! <i class="fa-solid fa-magnifying-glass-location"></i>`;
-    }, 4000);
+      navBtn.innerHTML = `Search <i class="fa-solid fa-magnifying-glass ms-1"></i>`;
+    }, 5000);
   }
 }
 
-// ===============================
-// Category Filter
-// ===============================
 function initFilters() {
   const filters = document.querySelectorAll('.filter');
   const cards = document.querySelectorAll('.listing-card');
@@ -95,47 +83,69 @@ function initFilters() {
   applyFilter(active ? active.dataset.category || '' : '');
 }
 
-// ===============================
-// Price Toggle
-// ===============================
 function initPriceToggle() {
   const priceSwitch = document.getElementById('switchCheckDefault');
   if (!priceSwitch) return;
 
-  priceSwitch.addEventListener('change', () => {
-    document.querySelectorAll('.list-title').forEach(title => {
-      const base = title.getAttribute('data-base-title') || title.textContent.split(' - ₹')[0];
-      const price = title.getAttribute('data-price') || '';
-      if (priceSwitch.checked && price) {
-        title.textContent = `${base} - ₹ ${price}`;
-      } else {
-        title.textContent = base;
-      }
-      title.setAttribute('data-base-title', base);
+  const sync = () => {
+    document.querySelectorAll('.listing-price').forEach(el => {
+      el.style.display = priceSwitch.checked ? 'block' : 'none';
     });
+  };
+  document.querySelectorAll('.listing-price').forEach(el => {
+    el.style.display = 'none';
   });
+  priceSwitch.addEventListener('change', sync);
 }
 
-// ===============================
-// Country Search (in navbar collapse)
-// ===============================
+// Working search: navigate to /listing?q=...
 function initCountrySearch() {
   const navBtn = document.getElementById('nav-btn');
   const countryInput = document.getElementById('country-input');
   if (!navBtn || !countryInput) return;
 
-  navBtn.addEventListener('click', () => {
-    const country = countryInput.value.trim();
-    if (!country) {
+  // Prefill from ?q= if present
+  const params = new URLSearchParams(window.location.search);
+  const existing = params.get('q') || params.get('country');
+  if (existing) countryInput.value = existing;
+
+  const doSearch = () => {
+    const q = countryInput.value.trim();
+    if (!q) {
       countryInput.classList.add('is-invalid');
       setTimeout(() => countryInput.classList.remove('is-invalid'), 1500);
       countryInput.focus();
       return;
     }
-    alert(`Searching listings in ${country}...`);
-  });
+    const params = new URLSearchParams({ q });
+    window.location.href = `/listing?${params.toString()}`;
+  };
 
+  navBtn.addEventListener('click', doSearch);
   countryInput.addEventListener('keypress', e => {
-    if (e.key === 'Enter') navBtn.click();
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      doSearch();
+    }
   });
+}
+
+// Toggle between file upload and image URL on create/edit forms
+function initImageSourceToggle() {
+  const fileInput = document.getElementById('image');
+  const urlInput = document.getElementById('imageUrl');
+  if (!fileInput && !urlInput) return;
+
+  const syncRequired = () => {
+    if (!fileInput || !urlInput) return;
+    const hasFile = fileInput.files && fileInput.files.length > 0;
+    const hasUrl = urlInput.value.trim().length > 0;
+    // On create page, at least one is needed — browser required is relaxed
+    fileInput.required = false;
+    urlInput.required = false;
+  };
+
+  if (fileInput) fileInput.addEventListener('change', syncRequired);
+  if (urlInput) urlInput.addEventListener('input', syncRequired);
+  syncRequired();
 }

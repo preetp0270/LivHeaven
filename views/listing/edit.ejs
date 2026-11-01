@@ -1,81 +1,97 @@
 <% layout('/layouts/boilerplate') -%>
 
-<body style="background-color: #f4e3ce;">
+<div class="container py-4">
+  <div class="form-shell">
 
-  <div class="container py-5">
-
-    <!-- Page Header -->
-    <div class="text-center mb-4">
-      <h1 class="h3 text-warning fw-bold">Edit Listing</h1>
-      <p class="text-muted">Update the details for this listing below.</p>
+    <div class="mb-4">
+      <div class="page-kicker">Update sanctuary</div>
+      <h1 class="page-title">Edit listing</h1>
+      <p class="page-lead">Refine the details of your estate. Leave image fields empty to keep the current photo.</p>
     </div>
 
-    <!-- Form Card -->
-    <div class="card shadow-sm mx-auto" style="max-width: 700px; border-radius: 12px;">
-      <div class="card-body p-4">
+    <form action="/listing/<%= listing._id %>?_method=PUT" method="post" class="needs-validation" novalidate enctype="multipart/form-data">
 
-        <form action="/listing/<%= listing._id %>?_method=PUT" method="post" class="row g-3 needs-validation" novalidate enctype="multipart/form-data">
+      <section class="form-section">
+        <div class="form-section-header">
+          <div>
+            <div class="form-section-label">Section A</div>
+            <h2 class="form-section-title">Identity & narrative</h2>
+          </div>
+          <i class="fa-regular fa-pen-to-square text-muted"></i>
+        </div>
+        <div class="mb-3">
+          <label for="title" class="form-label">Title</label>
+          <input type="text" class="form-control" id="title" name="listing[title]" value="<%= listing.title %>" required>
+          <div class="invalid-feedback">Please enter a title.</div>
+        </div>
+        <div>
+          <label for="description" class="form-label">Description</label>
+          <textarea class="form-control" id="description" name="listing[description]" rows="4" required><%= listing.description %></textarea>
+          <div class="invalid-feedback">Please enter a description.</div>
+        </div>
+      </section>
 
-          <!-- Title -->
-          <div class="col-12">
-            <label for="title" class="form-label fw-semibold">Title:</label>
-            <input type="text" class="form-control" id="title" name="listing[title]" value="<%= listing.title %>" placeholder="Enter title" required>
-            <div class="invalid-feedback">Please enter title!</div>
+      <section class="form-section">
+        <div class="form-section-header">
+          <div>
+            <div class="form-section-label">Section B</div>
+            <h2 class="form-section-title">Imagery</h2>
           </div>
-
-          <!-- Description -->
-          <div class="col-12">
-            <label for="description" class="form-label fw-semibold">Description:</label>
-            <textarea class="form-control" id="description" name="listing[description]" rows="4" placeholder="Enter description" required><%= listing.description %></textarea>
-            <div class="invalid-feedback">Please enter description!</div>
+          <i class="fa-regular fa-image text-muted"></i>
+        </div>
+        <% if (typeof originalImageUrl !== 'undefined' && originalImageUrl) { %>
+          <div class="mb-3">
+            <label class="form-label">Current image</label>
+            <img src="<%= originalImageUrl %>" alt="Current listing" class="img-fluid rounded-3" style="max-height: 240px; object-fit: cover; border: 1px solid var(--border);">
           </div>
-          <!-- Preview Image -->
-          <div class="col-12">
-            <label class="form-label fw-semibold">Current Image:</label>
-            <div class="mb-2">
-              <img src="<%= originalImageUrl %>" alt="Current Listing Image" class="img-fluid" style="max-height: 300px; object-fit: cover;">
-            </div>
-          </div>
-          <!-- Image URL -->
-          <div class="col-12">
-            <label for="image" class="form-label fw-semibold">Image (File):</label>
-            <input type="file" class="form-control" id="image" name="listing[image]">
-            <div class="form-text">Leave empty to keep the existing image.</div>
-          </div>
-
-          <!-- Price -->
+        <% } %>
+        <p class="small text-muted mb-3">Replace with a new file <strong>or</strong> paste any image URL (uploaded to Cloudinary when possible). Leave both empty to keep the current image.</p>
+        <div class="row g-3">
           <div class="col-md-6">
-            <label for="price" class="form-label fw-semibold">Price:</label>
-            <input type="number" class="form-control" id="price" name="listing[price]" value="<%= listing.price %>" placeholder="Enter price" required>
-            <div class="invalid-feedback">Please enter valid price!</div>
+            <label for="image" class="form-label">Upload new file</label>
+            <input type="file" class="form-control" id="image" name="listing[image]" accept="image/*">
           </div>
-
-          <!-- Location -->
           <div class="col-md-6">
-            <label for="location" class="form-label fw-semibold">Location:</label>
-            <input type="text" class="form-control" id="location" name="listing[location]" value="<%= listing.location %>" placeholder="Enter city/location" required>
-            <div class="invalid-feedback">Please enter location!</div>
+            <label for="imageUrl" class="form-label">Or paste image URL</label>
+            <input type="url" class="form-control" id="imageUrl" name="listing[imageUrl]" placeholder="https://example.com/photo.jpg">
           </div>
+        </div>
+      </section>
 
-          <!-- Country -->
-          <div class="col-12">
-            <label for="country" class="form-label fw-semibold">Country:</label>
-            <input type="text" class="form-control" id="country" name="listing[country]" value="<%= listing.country %>" placeholder="Enter country" required>
-            <div class="invalid-feedback">Please enter country!</div>
+      <section class="form-section">
+        <div class="form-section-header">
+          <div>
+            <div class="form-section-label">Section C</div>
+            <h2 class="form-section-title">Location & tariff</h2>
           </div>
-
-          <!-- Submit Button -->
-          <div class="col-12 text-center mt-3">
-            <button type="submit" class="btn btn-warning btn-lg rounded-pill shadow-sm px-5">
-              Update Listing
-            </button>
+          <i class="fa-solid fa-location-dot text-muted"></i>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="location" class="form-label">City / location</label>
+            <input type="text" class="form-control" id="location" name="listing[location]" value="<%= listing.location %>" required>
+            <div class="invalid-feedback">Please enter location.</div>
           </div>
+          <div class="col-md-6">
+            <label for="country" class="form-label">Country</label>
+            <input type="text" class="form-control" id="country" name="listing[country]" value="<%= listing.country %>" required>
+            <div class="invalid-feedback">Please enter country.</div>
+          </div>
+          <div class="col-md-6">
+            <label for="price" class="form-label">Price per night (₹)</label>
+            <input type="number" class="form-control" id="price" name="listing[price]" value="<%= listing.price %>" required min="0">
+            <div class="invalid-feedback">Please enter a valid price.</div>
+          </div>
+        </div>
+      </section>
 
-        </form>
-
+      <div class="d-flex flex-wrap gap-2 justify-content-end mt-2 mb-4">
+        <a href="/listing/<%= listing._id %>" class="btn btn-outline-secondary px-4">Cancel</a>
+        <button type="submit" class="btn btn-primary px-4">
+          Save changes <i class="fa-solid fa-check ms-1"></i>
+        </button>
       </div>
-    </div>
 
+    </form>
   </div>
-<!-- <script src="/JavaScript/script.js"></script> -->
-</body>
+</div>

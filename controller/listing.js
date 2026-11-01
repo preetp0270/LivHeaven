@@ -3,11 +3,30 @@ const ExpressErr = require('../utils/ExpressErr.js');
 const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
 const mapToken = process.env.MAP_TOKEN;
 const geocodingClient = mbxGeocoding({ accessToken: mapToken });
+const { cloudinary } = require('../cloudConfig.js');
 
-// INDEX – Show all listings
+// INDEX – Show all listings (optional search by q / country / location / title)
 module.exports.index = async (req, res) => {
-  const alllistings = await Listing.find({});
-  res.render('../views/listing/index.ejs', { listing: alllistings });
+  const q = (req.query.q || req.query.country || '').trim();
+  let filter = {};
+
+  if (q) {
+    const regex = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    filter = {
+      $or: [
+        { country: regex },
+        { location: regex },
+        { title: regex },
+        { category: regex }
+      ]
+    };
+  }
+
+  const alllistings = await Listing.find(filter);
+  res.render('../views/listing/index.ejs', {
+    listing: alllistings,
+    searchQuery: q
+  });
 };
 
 // NEW – Render form to create new listing
@@ -30,27 +49,62 @@ module.exports.showListing = async (req, res, next) => {
   res.render('../views/listing/show.ejs', { listing });
 };
 
-// CREATE – Add new listing
-module.exports.newListing = async (req, res, next) => {
-  const { listing } = req.body;
-  if (!listing) throw new ExpressErr(400, "Invalid listing data!");
-
-  // Get geocode info
-  const geoData = await geocodingClient.forwardGeocode({
-    query: listing.location,
-    limit: 1
-  }).send();
-
-  const newListing = new Listing(listing);
-  newListing.geometry = geoData.body.features[0].geometry;
-  newListing.owner = req.user._id;
-
-  // Handle file upload
+// Helper: resolve image from file upload OR remote URL (prefer Cloudinary)
+async function resolveImage(req, listingBody) {
+  // 1) File uploaded via multer → Cloudinary storage already set path/filename
   if (req.file) {
     const url = req.file.path || req.file.location || req.file.secure_url || req.file.url;
     const filename = req.file.filename || '';
-    newListing.image = { url, filename };
+    return { url, filename };
   }
+
+  // 2) Image URL provided in form
+  const imageUrl = (listingBody && listingBody.imageUrl ? String(listingBody.imageUrl) : '').trim();
+  if (imageUrl) {
+    try {
+      // Upload remote URL into Cloudinary so we store a Cloudinary link
+      const result = await cloudinary.uploader.upload(imageUrl, {
+        folder: 'LivHaven_DEV',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif', 'heic']
+      });
+      return { url: result.secure_url, filename: result.public_id };
+    } catch (err) {
+      // Fallback: store the raw URL if Cloudinary rejects it
+      console.error('Cloudinary remote upload failed, storing raw URL:', err.message);
+      return { url: imageUrl, filename: 'external' };
+    }
+  }
+
+  return null;
+}
+
+// CREATE – Add new listing
+module.exports.newListing = async (req, res, next) => {
+  const { listing } = req.body;
+  if (!listing) throw new ExpressErr(400, 'Invalid listing data!');
+
+  const image = await resolveImage(req, listing);
+  if (!image || !image.url) {
+    throw new ExpressErr(400, 'Please provide an image file or a valid image URL.');
+  }
+
+  // Get geocode info
+  const geoData = await geocodingClient.forwardGeocode({
+    query: `${listing.location}, ${listing.country || ''}`.trim(),
+    limit: 1
+  }).send();
+
+  if (!geoData.body.features || !geoData.body.features[0]) {
+    throw new ExpressErr(400, 'Could not find that location. Try a clearer city or country name.');
+  }
+
+  // Strip helper field before creating document
+  const { imageUrl, ...listingData } = listing;
+
+  const newListing = new Listing(listingData);
+  newListing.geometry = geoData.body.features[0].geometry;
+  newListing.owner = req.user._id;
+  newListing.image = image;
 
   await newListing.save();
   req.flash('success', 'Listing created successfully!');
@@ -68,7 +122,7 @@ module.exports.editListingForm = async (req, res, next) => {
   }
 
   let originalImageUrl = listing.image?.url;
-  if (originalImageUrl) {
+  if (originalImageUrl && originalImageUrl.includes('/upload/')) {
     originalImageUrl = originalImageUrl.replace('/upload/', '/upload/h_300,w_300/');
   }
 
@@ -81,51 +135,44 @@ module.exports.updateListing = async (req, res, next) => {
   const { listing } = req.body;
 
   if (!listing) {
-    throw new ExpressErr(400, "Invalid listing data!");
+    throw new ExpressErr(400, 'Invalid listing data!');
   }
 
-  // 1️⃣ Geocode the new location
   const geoData = await geocodingClient.forwardGeocode({
-    query: listing.location,
+    query: `${listing.location}, ${listing.country || ''}`.trim(),
     limit: 1
   }).send();
 
-  // Defensive check
-  const geoFeature = geoData.body.features[0];
+  const geoFeature = geoData.body.features && geoData.body.features[0];
   if (!geoFeature) {
     req.flash('error', 'Unable to find coordinates for that location.');
     return res.redirect(`/listing/${id}/edit`);
   }
 
-  // 2️⃣ Find the listing manually (not using findByIdAndUpdate)
   const updatedListing = await Listing.findById(id);
   if (!updatedListing) {
     req.flash('error', 'Listing not found');
     return res.redirect('/listing');
   }
 
-  // 3️⃣ Update fields manually
   updatedListing.title = listing.title;
   updatedListing.description = listing.description;
   updatedListing.price = listing.price;
   updatedListing.location = listing.location;
   updatedListing.country = listing.country;
-  updatedListing.geometry = geoFeature.geometry; // ✅ always update geometry
+  if (listing.category) updatedListing.category = listing.category;
+  updatedListing.geometry = geoFeature.geometry;
 
-  // 4️⃣ Update image if uploaded
-  if (req.file) {
-    const url = req.file.path || req.file.location || req.file.secure_url || req.file.url;
-    const filename = req.file.filename || '';
-    updatedListing.image = { url, filename };
+  const image = await resolveImage(req, listing);
+  if (image && image.url) {
+    updatedListing.image = image;
   }
 
-  // 5️⃣ Save changes
   await updatedListing.save();
 
   req.flash('success', 'Listing updated successfully!');
   res.redirect(`/listing/${id}`);
 };
-
 
 // DELETE – Remove listing
 module.exports.deleteListing = async (req, res) => {

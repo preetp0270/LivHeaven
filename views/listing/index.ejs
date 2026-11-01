@@ -1,100 +1,119 @@
 <% layout('/layouts/boilerplate') -%>
 
-<body style="background-color: #f4e3ce;">
-  <div class="container py-5">
+<div class="container py-4">
 
-    <!-- ===== Switch to Display Price ===== -->
-    <div class="form-check-reverse form-switch mb-4">
+  <% if (typeof searchQuery !== 'undefined' && searchQuery) { %>
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+      <p class="mb-0 text-muted">
+        Results for <strong style="color: var(--primary-dark);">“<%= searchQuery %>”</strong>
+        · <%= listing.length %> listing<%= listing.length === 1 ? '' : 's' %>
+      </p>
+      <a href="/listing" class="btn btn-sm btn-outline-secondary">Clear search</a>
+    </div>
+  <% } %>
+
+  <div class="price-toggle-wrap">
+    <div class="form-check form-switch">
       <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault">
-      <label class="form-check-label" for="switchCheckDefault">Display Price</label>
+      <label class="form-check-label small text-muted" for="switchCheckDefault">Display price</label>
     </div>
+  </div>
 
-    <!-- ===== Filter Bar ===== -->
-    <div id="filter" class="mb-4">
-      <div class="filter active" data-category="">
-        <div><i class="fa-solid fa-list"></i></div>
-        <p>All</p>
-      </div>
-      <div class="filter" data-category="Trending">
-        <div><i class="fa-solid fa-fire"></i></div>
-        <p>Trending</p>
-      </div>
-      <div class="filter" data-category="Rooms">
-        <div><i class="fa-solid fa-bed"></i></div>
-        <p>Rooms</p>
-      </div>
-      <div class="filter" data-category="Beach">
-        <div><i class="fa-solid fa-umbrella-beach"></i></div>
-        <p>Beach</p>
-      </div>
-      <div class="filter" data-category="Mountain">
-        <div><i class="fa-solid fa-mountain-sun"></i></div>
-        <p>Mountain</p>
-      </div>
-      <div class="filter" data-category="Resort">
-        <div><i class="fa-solid fa-hotel"></i></div>
-        <p>Resort</p>
-      </div>
-      <div class="filter" data-category="Forest">
-        <div><i class="fa-solid fa-tree"></i></div>
-        <p>Forest</p>
-      </div>
-      <div class="filter" data-category="Peace-City">
-        <div><i class="fa-solid fa-mountain-city"></i></div>
-        <p>Peace-City</p>
-      </div>
-      <div class="filter" data-category="World Icon">
-        <div><i class="fa-solid fa-gem"></i></div>
-        <p>World Icon</p>
-      </div>
-      <div class="filter" data-category="Camping">
-        <div><i class="fa-solid fa-campground"></i></div>
-        <p>Camping</p>
-      </div>
-      <div class="filter" data-category="Relex">
-        <div><i class="fa-solid fa-spa"></i></div>
-        <p>Relex</p>
-      </div>
-      <div class="filter" data-category="Archway">
-        <div><i class="fa-solid fa-archway"></i></div>
-        <p>Archway</p>
-      </div>
-      <div class="filter" data-category="Ice-Hills">
-        <div><i class="fa-solid fa-snowflake"></i></div>
-        <p>Ice-Hills</p>
-      </div>
+  <div id="filter" class="mb-4">
+    <div class="filter active" data-category="">
+      <div><i class="fa-solid fa-list"></i></div>
+      <p>All</p>
     </div>
+    <div class="filter" data-category="Trending">
+      <div><i class="fa-solid fa-fire"></i></div>
+      <p>Trending</p>
+    </div>
+    <div class="filter" data-category="Rooms">
+      <div><i class="fa-solid fa-bed"></i></div>
+      <p>Rooms</p>
+    </div>
+    <div class="filter" data-category="Beach">
+      <div><i class="fa-solid fa-umbrella-beach"></i></div>
+      <p>Beach</p>
+    </div>
+    <div class="filter" data-category="Mountain">
+      <div><i class="fa-solid fa-mountain-sun"></i></div>
+      <p>Mountain</p>
+    </div>
+    <div class="filter" data-category="Resort">
+      <div><i class="fa-solid fa-hotel"></i></div>
+      <p>Resort</p>
+    </div>
+    <div class="filter" data-category="Forest">
+      <div><i class="fa-solid fa-tree"></i></div>
+      <p>Forest</p>
+    </div>
+    <div class="filter" data-category="Peace-City">
+      <div><i class="fa-solid fa-mountain-city"></i></div>
+      <p>Peace-City</p>
+    </div>
+    <div class="filter" data-category="World Icon">
+      <div><i class="fa-solid fa-gem"></i></div>
+      <p>World Icon</p>
+    </div>
+    <div class="filter" data-category="Camping">
+      <div><i class="fa-solid fa-campground"></i></div>
+      <p>Camping</p>
+    </div>
+    <div class="filter" data-category="Relex">
+      <div><i class="fa-solid fa-spa"></i></div>
+      <p>Relex</p>
+    </div>
+    <div class="filter" data-category="Archway">
+      <div><i class="fa-solid fa-archway"></i></div>
+      <p>Archway</p>
+    </div>
+    <div class="filter" data-category="Ice-Hills">
+      <div><i class="fa-solid fa-snowflake"></i></div>
+      <p>Ice-Hills</p>
+    </div>
+  </div>
 
-    <!-- ===== Listings Grid ===== -->
-    <div class="row g-4">
-      <% listing.forEach(listing => { %>
-        <div class="col-md-6 col-lg-4">
-          <div class="card shadow-sm h-100 border-0 listing-card"
-               data-id="<%= listing._id %>"
-               data-category="<%= listing.category || '' %>"
-               style="cursor: pointer;">
-            <% if (listing.image) { %>
-              <img src="<%= listing.image.url %>" 
-                   class="card-img-top" 
-                   alt="<%= listing.title %>"
-                   style="height:200px; object-fit:cover; border-top-left-radius:12px; border-top-right-radius:12px;">
-            <% } else { %>
-              <img src="/images/default-listing.jpg" 
-                   class="card-img-top" 
-                   alt="Default Listing"
-                   style="height:200px; object-fit:cover; border-top-left-radius:12px; border-top-right-radius:12px;">
-            <% } %>
-            <div class="card-body d-flex flex-column justify-content-between">
-              <h5 class="card-title text-primary text-center list-title"
-                  data-price="<%= listing.price %>"
-                  data-base-title="<%= listing.title %>">
-                <%= listing.title %>
-              </h5>
+  <% if (!listing || listing.length === 0) { %>
+    <div class="text-center py-5">
+      <p class="text-muted mb-3">No listings found<% if (typeof searchQuery !== 'undefined' && searchQuery) { %> for “<%= searchQuery %>”<% } %>.</p>
+      <a href="/listing" class="btn btn-outline-primary">View all listings</a>
+    </div>
+  <% } else { %>
+  <div class="row g-4">
+    <% listing.forEach(item => { %>
+      <div class="col-sm-6 col-lg-4">
+        <div class="card h-100 listing-card"
+             data-id="<%= item._id %>"
+             data-category="<%= item.category || '' %>">
+          <% if (item.image && item.image.url) { %>
+            <img src="<%= item.image.url %>"
+                 class="card-img-top"
+                 alt="<%= item.title %>">
+          <% } else { %>
+            <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80"
+                 class="card-img-top"
+                 alt="Default Listing">
+          <% } %>
+          <div class="card-body">
+            <h5 class="list-title"
+                data-price="<%= item.price %>"
+                data-base-title="<%= item.title %>">
+              <%= item.title %>
+            </h5>
+            <div class="listing-meta">
+              <%= item.location %><% if (item.country) { %>, <%= item.country %><% } %>
             </div>
+            <% if (item.price) { %>
+              <div class="listing-price hide-price">
+                ₹<%= item.price.toLocaleString("en-IN") %> <span class="text-muted fw-normal" style="font-size:0.8rem">/ night</span>
+              </div>
+            <% } %>
           </div>
         </div>
-      <% }) %>
-    </div>
-
+      </div>
+    <% }) %>
   </div>
-</body>
+  <% } %>
+
+</div>

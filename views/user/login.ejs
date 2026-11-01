@@ -1,44 +1,75 @@
 <% layout('/layouts/boilerplate') -%>
-<body style="background-color: #f4e3ce;">
-    <div class="container py-5">
-    
-        <!-- Page Header -->
-        <div class="text-center mb-4">
-        <h1 class="h3 text-success fw-bold">Login</h1>
-        <p class="text-muted">Access your account by entering your credentials below.</p>
+
+<div class="auth-shell">
+  <div class="auth-panel">
+
+    <div class="auth-visual" style="background-image: url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1400&q=85');">
+      <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+        <span class="pill-tag">
+          <span style="width:7px;height:7px;border-radius:50%;background:#fc9174;display:inline-block;"></span>
+          Curated sanctuary
+        </span>
+        <span class="pill-tag">
+          <i class="fa-solid fa-shield-halved"></i> Verified stays
+        </span>
+      </div>
+
+      <div>
+        <p class="text-white-50 small text-uppercase mb-2" style="letter-spacing:0.1em;font-weight:600;">Architecture in stillness</p>
+        <h2 class="text-white serif mb-3" style="font-size:clamp(1.6rem,2.5vw,2.2rem);line-height:1.25;">
+          Welcome back to homes of profound calm.
+        </h2>
+        <div class="editorial-quote">
+          <div class="quote-label">Editorial note</div>
+          <p>“LivHeaven connects conscious travelers to sanctuaries of timeless design.”</p>
+          <div class="d-flex justify-content-between align-items-center small">
+            <span class="fw-semibold text-dark">LivHeaven Guild</span>
+            <span style="color:var(--secondary-strong);font-weight:600;">Private estates</span>
+          </div>
         </div>
-    
-        <!-- Form Card -->
-        <div class="card shadow-sm mx-auto" style="max-width: 500px; border-radius: 12px;">
-        <div class="card-body p-4">
-    
-            <form action="/login" method="POST" class="row g-3 needs-validation" novalidate>
-    
-            <!-- Username -->
-            <div class="col-12">
-                <label for="username" class="form-label fw-semibold">Username:</label>
-                <input type="text" class="form-control" id="username" name="username" placeholder="Enter username" required>
-                <div class="valid-feedback">Username looks good!</div>
-                <div class="invalid-feedback">Please enter your username!</div>
-            </div>
-    
-            <!-- Password -->
-            <div class="col-12">
-                <label for="password" class="form-label fw-semibold">Password:</label>
-                <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" required>
-                <div class="valid-feedback">Password looks good!</div>
-                <div class="invalid-feedback">Please enter your password!</div>
-            </div>
-    
-            <!-- Submit Button -->
-            <div class="col-12 text-center">
-                <button type="submit" class="btn btn-success px-4 py-2 fw-semibold">Login</button>
-            </div>
-    
-            </form>
-    
-        </div>
-        </div>
-    
+      </div>
     </div>
-</body>
+
+    <div class="auth-form-side">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <span class="brand-mark material-symbols-outlined" style="width:36px;height:36px;border-radius:8px;background:var(--primary);color:#fff;display:inline-flex;align-items:center;justify-content:center;">home</span>
+        <div>
+          <div class="fw-semibold" style="color:var(--primary-dark);">LivHeaven</div>
+          <div class="small text-muted" style="font-size:0.7rem;letter-spacing:0.04em;text-transform:uppercase;">Private architectural estates</div>
+        </div>
+      </div>
+
+      <div class="auth-tabs">
+        <a href="/login" class="active">Log In</a>
+        <a href="/signup">Sign Up</a>
+      </div>
+
+      <h1 class="auth-headline">Welcome to LivHeaven</h1>
+      <p class="auth-sub">Enter your credentials to access curated sanctuaries.</p>
+
+      <form action="/login" method="POST" class="needs-validation" novalidate>
+        <div class="mb-3">
+          <label for="username" class="form-label">Username</label>
+          <input type="text" class="form-control" id="username" name="username" placeholder="Your username" required autocomplete="username">
+          <div class="invalid-feedback">Please enter your username.</div>
+        </div>
+
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input type="password" class="form-control" id="password" name="password" placeholder="••••••••" required autocomplete="current-password">
+          <div class="invalid-feedback">Please enter your password.</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 py-2 mt-2">
+          Continue to LivHeaven <i class="fa-solid fa-arrow-right ms-1"></i>
+        </button>
+      </form>
+
+      <p class="text-center small text-muted mt-4 mb-0">
+        Don’t have an account?
+        <a href="/signup" style="color:var(--secondary-strong);font-weight:600;">Sign up for free</a>
+      </p>
+    </div>
+
+  </div>
+</div>

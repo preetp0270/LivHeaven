@@ -1,79 +1,140 @@
 <% layout('/layouts/boilerplate') -%>
 
-<body style="background-color: #f4e3ce;">
+<div class="container py-4">
+  <div class="form-shell">
 
-  <div class="container py-5">
-
-    <!-- Page Header -->
-    <div class="text-center mb-4">
-      <h1 class="h3 text-success fw-bold">Create New Listing</h1>
-      <p class="text-muted">Fill in the details below to add a new listing.</p>
+    <div class="mb-4">
+      <div class="page-kicker">Host your sanctuary</div>
+      <h1 class="page-title">Create a new listing</h1>
+      <p class="page-lead">Share the essentials of your estate. Guests will discover it through title, story, place, and imagery.</p>
     </div>
 
-    <!-- Form Card -->
-    <div class="card shadow-sm mx-auto" style="max-width: 700px; border-radius: 12px;">
-      <div class="card-body p-4">
+    <form action="/listing" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
 
-        <form action="/listing" method="POST" class="row g-3 needs-validation" novalidate enctype="multipart/form-data">
-
-          <!-- Title -->
-          <div class="col-12">
-            <label for="title" class="form-label fw-semibold">Title:</label>
-            <input type="text" class="form-control" id="title" name="listing[title]" placeholder="Enter title" required>
-            <div class="valid-feedback">Title Looks good!</div>
-            <div class="invalid-feedback">Please enter title!</div>
+      <section class="form-section">
+        <div class="form-section-header">
+          <div>
+            <div class="form-section-label">Section A</div>
+            <h2 class="form-section-title">Identity & narrative</h2>
           </div>
+          <i class="fa-regular fa-pen-to-square text-muted"></i>
+        </div>
+        <div class="mb-3">
+          <label for="title" class="form-label">Title</label>
+          <input type="text" class="form-control" id="title" name="listing[title]" placeholder="e.g. Solarium Glass Villa" required>
+          <div class="invalid-feedback">Please enter a title.</div>
+        </div>
+        <div>
+          <label for="description" class="form-label">Description</label>
+          <textarea class="form-control" id="description" name="listing[description]" rows="4" placeholder="Describe the atmosphere, architecture, and what makes this stay unique."></textarea>
+        </div>
+      </section>
 
-          <!-- Description -->
-          <div class="col-12">
-            <label for="description" class="form-label fw-semibold">Description:</label>
-            <textarea class="form-control" id="description" name="listing[description]" rows="4" placeholder="Enter description"></textarea>
-            <div class="invalid-feedback">Please enter description!</div>
+      <section class="form-section">
+        <div class="form-section-header">
+          <div>
+            <div class="form-section-label">Section B</div>
+            <h2 class="form-section-title">Category</h2>
           </div>
+          <i class="fa-solid fa-layer-group text-muted"></i>
+        </div>
+        <div class="category-grid">
+          <% const cats = [
+            { v: 'Trending', icon: 'fa-fire', d: 'Popular now' },
+            { v: 'Rooms', icon: 'fa-bed', d: 'Private rooms' },
+            { v: 'Beach', icon: 'fa-umbrella-beach', d: 'Coastal stays' },
+            { v: 'Mountain', icon: 'fa-mountain-sun', d: 'Alpine air' },
+            { v: 'Resort', icon: 'fa-hotel', d: 'Full service' },
+            { v: 'Forest', icon: 'fa-tree', d: 'Woodland calm' },
+            { v: 'Peace-City', icon: 'fa-mountain-city', d: 'Urban quiet' },
+            { v: 'World Icon', icon: 'fa-gem', d: 'Landmark stays' },
+            { v: 'Camping', icon: 'fa-campground', d: 'Under stars' },
+            { v: 'Relex', icon: 'fa-spa', d: 'Wellness' },
+            { v: 'Archway', icon: 'fa-archway', d: 'Heritage' },
+            { v: 'Ice-Hills', icon: 'fa-snowflake', d: 'Snow retreats' }
+          ]; %>
+          <% cats.forEach((c, i) => { %>
+            <label class="category-option">
+              <input type="radio" name="listing[category]" value="<%= c.v %>" <%= i === 0 ? 'checked' : '' %>>
+              <div class="cat-icon"><i class="fa-solid <%= c.icon %>"></i></div>
+              <div>
+                <div class="cat-name"><%= c.v %></div>
+                <div class="cat-desc"><%= c.d %></div>
+              </div>
+            </label>
+          <% }) %>
+        </div>
+      </section>
 
-          <!-- Image URL -->
-          <!-- <div class="col-12">
-            <label for="image" class="form-label fw-semibold">Image (URL):</label>
-            <input type="text" class="form-control" id="image" name="listing[image]" placeholder="https://example.com/image.jpg">
-          </div> -->
-          <div class="col-12">
-            <label for="image" class="form-label fw-semibold">Image (File):</label>
-            <input type="file" class="form-control" id="image" name="listing[image]" required>
+      <section class="form-section">
+        <div class="form-section-header">
+          <div>
+            <div class="form-section-label">Section C</div>
+            <h2 class="form-section-title">Location & tariff</h2>
           </div>
-
-          <!-- Price -->
+          <i class="fa-solid fa-location-dot text-muted"></i>
+        </div>
+        <div class="row g-3">
           <div class="col-md-6">
-            <label for="price" class="form-label fw-semibold">Price:</label>
-            <input  class="form-control" id="price" name="listing[price]" placeholder="Enter price" required>
-            <div class="invalid-feedback">Please enter valid price!</div>
+            <label for="location" class="form-label">City / location</label>
+            <input type="text" class="form-control" id="location" name="listing[location]" placeholder="e.g. Carmel-by-the-Sea" required>
+            <div class="invalid-feedback">Please enter location.</div>
           </div>
-
-          <!-- Location -->
           <div class="col-md-6">
-            <label for="location" class="form-label fw-semibold">Location:</label>
-            <input type="text" class="form-control" id="location" name="listing[location]" placeholder="Enter city/location" required>
-            <div class="invalid-feedback">Please enter location!</div>
+            <label for="country" class="form-label">Country</label>
+            <input type="text" class="form-control" id="country" name="listing[country]" placeholder="e.g. United States" required>
+            <div class="invalid-feedback">Please enter country.</div>
           </div>
-
-          <!-- Country -->
-          <div class="col-12">
-            <label for="country" class="form-label fw-semibold">Country:</label>
-            <input type="text" class="form-control" id="country" name="listing[country]" placeholder="Enter country" required>
-            <div class="invalid-feedback">Please enter country!</div>
+          <div class="col-md-6">
+            <label for="price" class="form-label">Price per night (₹)</label>
+            <input type="number" class="form-control" id="price" name="listing[price]" placeholder="7500" required min="0">
+            <div class="invalid-feedback">Please enter a valid price.</div>
           </div>
+        </div>
+      </section>
 
-          <!-- Submit Button -->
-          <div class="col-12 text-center mt-3">
-            <button type="submit" class="btn btn-success btn-lg rounded-pill shadow-sm px-5">
-              Create Listing
-            </button>
+      <section class="form-section">
+        <div class="form-section-header">
+          <div>
+            <div class="form-section-label">Section D</div>
+            <h2 class="form-section-title">Imagery</h2>
           </div>
+          <i class="fa-regular fa-image text-muted"></i>
+        </div>
+        <p class="small text-muted mb-3">Use either a file from your device <strong>or</strong> any public image URL. URLs are uploaded to Cloudinary when possible.</p>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="image" class="form-label">Upload file</label>
+            <input type="file" class="form-control" id="image" name="listing[image]" accept="image/*">
+            <div class="form-text small">JPG, PNG, WEBP, HEIC</div>
+          </div>
+          <div class="col-md-6">
+            <label for="imageUrl" class="form-label">Or paste image URL</label>
+            <input type="url" class="form-control" id="imageUrl" name="listing[imageUrl]" placeholder="https://example.com/photo.jpg">
+            <div class="form-text small">Any public image link</div>
+          </div>
+        </div>
+      </section>
 
-        </form>
-
+      <div class="d-flex flex-wrap gap-2 justify-content-end mt-2 mb-4">
+        <a href="/listing" class="btn btn-outline-secondary px-4">Cancel</a>
+        <button type="submit" class="btn btn-primary px-4">
+          Publish listing <i class="fa-solid fa-arrow-right ms-1"></i>
+        </button>
       </div>
-    </div>
 
+    </form>
   </div>
+</div>
 
-</body>
+<script>
+  document.querySelectorAll('.category-option').forEach(el => {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('.category-option').forEach(o => o.classList.remove('active'));
+      el.classList.add('active');
+      el.querySelector('input').checked = true;
+    });
+  });
+  const first = document.querySelector('.category-option');
+  if (first) first.classList.add('active');
+</script>
